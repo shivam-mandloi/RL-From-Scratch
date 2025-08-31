@@ -13,19 +13,12 @@ struct State
         x = a / 5;
         y = a % 5;        
     }
-    State operator-(State state1)
+    State operator+(State state1)
     {
-        return State(x - state1.x, y - state1.y);
+        return State(x + state1.x, y + state1.y);
     }
 };
 
-struct ActionResult
-{
-    float reward;
-    State resState;
-    StateType type;
-    ActionResult(float _reward, State _resState, StateType _type): reward(_reward), resState(_resState), type(_type){}
-};
 
 enum StateType
 {
@@ -35,6 +28,13 @@ enum StateType
     GOAL
 };
 
+struct ActionResult
+{
+    float reward;
+    State resState;
+    StateType type;
+    ActionResult(float _reward, State _resState, StateType _type): reward(_reward), resState(_resState), type(_type){}
+};
 State FindDisplacement(int a)
 {
     if (a == 1)
@@ -60,6 +60,7 @@ public:
             map[st.x][st.y] = 2;
         }
     }
+
     StateType CheckState(State state)
     {
         if(state.x < 0 || state.y < 0 || state.x > 4 || state.y > 4)
@@ -94,7 +95,7 @@ public:
 
     ActionResult GetReward(State player, int action)
     {
-        State newPlayer = player - FindDisplacement(action);
+        State newPlayer = player + FindDisplacement(action);
         StateType type = CheckState(newPlayer);
         if(type == NORMAl)
             return ActionResult(0, newPlayer, NORMAl);

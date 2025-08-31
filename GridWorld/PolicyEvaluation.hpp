@@ -21,7 +21,7 @@ float MaxVAlueChange(std::vector<std::vector<float>> &temp, std::vector<std::vec
     return max;
 }
 
-std::vector<std::vector<float>> PolicyEvaluation(std::vector<std::vector<int>> policy, std::vector<int> pit, float gamma, float theta)
+std::vector<std::vector<float>> PolicyEvaluation(std::vector<std::vector<int>> &policy, std::vector<int> &pit, float gamma, float theta)
 {
     /*
         Input:
