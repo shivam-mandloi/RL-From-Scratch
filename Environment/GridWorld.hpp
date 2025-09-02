@@ -35,6 +35,7 @@ struct ActionResult
     StateType type;
     ActionResult(float _reward, State _resState, StateType _type): reward(_reward), resState(_resState), type(_type){}
 };
+
 State FindDisplacement(int a)
 {
     if (a == 1)
