@@ -15,7 +15,7 @@ vect<float> PureExploration(int noEps, vect<float> prob)
 {
     BSW env(prob);
     vect<float> value(1, env.numberOfbandit, 0.0);
-    vect<int> freqOfAction = {0, 0};
+    vect<int> freqOfAction(1, env.numberOfbandit, 0);
     for(int i = 0; i < noEps; i++)
     {
         int action = GetRandomAction(value);
