@@ -59,7 +59,7 @@ public:
 
     T Get(int i, int j)
     {
-        return Get(row * i + j);
+        return Get(col * i + j);
     }
 
     void push(int i, T data)
@@ -69,7 +69,7 @@ public:
 
     void push(int i, int j, T data)
     {
-        push(i * row + j, data);
+        push(i * col + j, data);
     }
 
     vect<int> size()
