@@ -34,6 +34,6 @@ class RunScript:
         self.PrintStatus(result)
 
 if(__name__ == "__main__"):
-    filename = "Chapter5.cpp"
+    filename = "Chapter6.cpp"
     script = RunScript([],filename)
     script.Run()

@@ -9,6 +9,7 @@ class vect
 public:
     T *arr;
     int len, row, col;
+    vect():row(0), col(0), len(0){}
     vect(size_t _row, size_t _col, T defaultData)
     {
         row = _row;
@@ -19,7 +20,7 @@ public:
     }
     vect(size_t _row, size_t _col) : vect(_row, _col, T{}) {}
     vect(size_t _col, T defaultData) : vect(1, _col, defaultData) {}
-    vect(size_t _col) : vect(1, _col, T{}) {}
+    vect(size_t _col) : vect(1, _col, T{}) {}    
     
     vect(const vect<T> &newArr): row(newArr.row), col(newArr.col), len(newArr.len)
     {
@@ -82,14 +83,22 @@ public:
 
     void print()
     {
-        for(int i = 0; i < row; i++)
-        {            
-            for(int j = 0; j < col; j++)
-            {
-                std::cout << Get(i, j) << " ";
+        try
+        {
+            for(int i = 0; i < row; i++)
+            {            
+                for(int j = 0; j < col; j++)
+                {
+                    std::cout << Get(i, j) << " ";
+                }
+                std::cout << std::endl;
             }
             std::cout << std::endl;
         }
-        std::cout << std::endl;
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
     }
 };

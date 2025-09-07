@@ -1,4 +1,5 @@
 // Random Walk
+// Slippery Walk
 #pragma once
 #include <vect.hpp>
 #include <random>
@@ -22,8 +23,9 @@ struct RWActionResult
     float reward;
     RWState resState;
     RWStateType type;
-    RWActionResult(float _reward, RWState _resState, RWStateType _type): reward(_reward), resState(_resState), type(_type){}
-    RWActionResult(const RWActionResult &other) : reward(other.reward), resState(other.resState), type(other.type){}
+    int action;
+    RWActionResult(float _reward, RWState _resState, RWStateType _type, int _action): reward(_reward), resState(_resState), type(_type), action(_action){}
+    RWActionResult(const RWActionResult &other) : reward(other.reward), resState(other.resState), type(other.type), action(other.action){}
 };
 
 class RW
@@ -38,6 +40,7 @@ public:
     // action = 0 -> left | action = 1 -> right
     RWActionResult step(RWState state, int action)
     {
+        int actionCopy = action;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<double> distr(0.0, 1.0);
         double randomNumber = distr(gen);
@@ -47,9 +50,9 @@ public:
         state.state += (action == 1) ? 1 : -1;
 
         if(state.state == -1)
-            return RWActionResult(-1, state.state, PIT);
+            return RWActionResult(-1, state.state, PIT, actionCopy);
         if(state.state == prob.row)
-            return RWActionResult(1, state.state, GOAL);
-        return RWActionResult(0, state.state, NORMAl);
+            return RWActionResult(1, state.state, GOAL, actionCopy);
+        return RWActionResult(0, state.state, NORMAl, actionCopy);
     }
 };
