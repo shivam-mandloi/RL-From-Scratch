@@ -1,6 +1,7 @@
 #include "vect.hpp"
 #include "MCControl.hpp"
 #include "SARSA.hpp"
+#include "QLearning.hpp"
 
 using namespace std;
 
@@ -18,9 +19,14 @@ int main()
     prob.row = 5;
     prob.col = 2;
     prob.print();
+
     vector<vect<float>> Q = MCControl(prob, 0.3, 0.9, 0.2, 3000);
     PrintQValue(Q);
+
     Q = SARSA(prob, 0.1, 0.9, 0.4, 3000, RWState(2));
+    PrintQValue(Q);
+
+    Q = QLearning(prob, 0.2, 0.9, 0.2, 3000, RWState(2));
     PrintQValue(Q);
     return 0;
 }
