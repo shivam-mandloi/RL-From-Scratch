@@ -33,6 +33,14 @@ public:
         // std::cout << "linear grad start" << std::endl;
         LinearBackward(prevGrad, weight, bias, saved, weigthUpdate, biasUpdate);
     }
+    
+    void ZeroGrad()
+    {
+        // update weightUpdate to zero
+        // Use when reset the weight and bias
+        std::fill(weigthUpdate.arr, weigthUpdate.arr + weigthUpdate.len, 0.0);
+        std::fill(biasUpdate.arr, biasUpdate.arr + biasUpdate.len, 0.0);
+    }
 
     void update()
     {
@@ -40,8 +48,7 @@ public:
         opt.update(weight, weigthUpdate, bias, biasUpdate);
 
         // change update vector to zero
-        std::fill(weigthUpdate.arr, weigthUpdate.arr + weigthUpdate.len, 0.0);
-        std::fill(biasUpdate.arr, biasUpdate.arr + biasUpdate.len, 0.0);
+        ZeroGrad();
     }
 
 private:

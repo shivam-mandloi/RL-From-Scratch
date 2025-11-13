@@ -6,12 +6,12 @@ class RunScript:
         self.wkDir = os.getcwd()
         self.filename = os.path.join(self.wkDir, filename)
         self.includeDir = os.path.join(self.wkDir, "Include")
-        self.args = ["g++",self.filename] + self.GetAllDir() + ["-o","main.exe"] + args
+        self.args = ["g++",self.filename] + ["-Llib", "-lsfml-graphics", "-LC:/Users/shiva/Desktop/IISC/code/NN Model C++/RL/Deep Learning/SFML/lib", "-lsfml-window", "-lsfml-system" ] + self.GetAllDir() + ["-o","SFML/main.exe"] + args
         self.startRun = [os.path.join(self.wkDir,"./main.exe")]
 
-    def GetAllDir(self):
-        dir = []
-        includeDir = [self.includeDir, os.getcwd()]
+    def GetAllDir(self):        
+        dir = [self.wkDir]
+        includeDir = [self.includeDir, self.wkDir]
         while(len(includeDir)):
             folder = includeDir.pop()
             for roots, dire, files in os.walk(folder):
@@ -23,7 +23,6 @@ class RunScript:
         if result.returncode == 0:
             print(f"[*]Compilation successful!\nFile Name: {self.filename}")
         else:
-            print("[#]Fuck You")
             print("[!]Compilation failed")
             print("Error message:")
             print(result.stderr.decode())
@@ -34,6 +33,6 @@ class RunScript:
         self.PrintStatus(result)
 
 if(__name__ == "__main__"):
-    filename = "Chapter6.cpp"
+    filename = "main.cpp"
     script = RunScript([],filename)
     script.Run()
