@@ -12,18 +12,22 @@ struct PlayerNN
     // Input will be
     // 1st player location, 1st player velocity, 2nd player location, 2nd player velocity
     PlayerNN()
-        : l1(8, 10), l2(10, 40), l3(40, 20), l4(20, 8)
+        : l1(9, 10), l2(10, 40), l3(40, 20), l4(20, 9)
     {
-        l1.opt.SetRMSprop(0.99, 1e-3);
-        l2.opt.SetRMSprop(0.99, 1e-3);
-        l3.opt.SetRMSprop(0.99, 1e-3);
-        l4.opt.SetRMSprop(0.99, 1e-3);
+        l1.opt.SetRMSprop(0.99, 1e-4);
+        l2.opt.SetRMSprop(0.99, 1e-4);
+        l3.opt.SetRMSprop(0.99, 1e-4);
+        l4.opt.SetRMSprop(0.99, 1e-4);
+
+        // l1.opt.SetSGD(1e-5);
+        // l2.opt.SetSGD(1e-5);
+        // l3.opt.SetSGD(1e-5);
+        // l4.opt.SetSGD(1e-5);
     }
 
     // Used only for predict
     vecX<double> PredictValueFunction(vecX<double> &state)
     {
-        // state.size().print();
         l1.forward(state);
         rl1.forward(state);
         l2.forward(state);
@@ -40,7 +44,6 @@ struct PlayerNN
     double Learn(vecX<double> states, std::vector<int> &selectedAction, std::vector<float> &allReward, float cumReward, float gamma)
     {
         states = PredictValueFunction(states);
-
         // reset the grad
         // PredictValueFunction could be used before it
         l1.ZeroGrad();
@@ -49,13 +52,11 @@ struct PlayerNN
         l4.ZeroGrad();
 
         vecX<double> actualValues = states;
-        // float cumReward = allReward[allReward.size() - 1];
         for (int i = 0; i < states.col; i++)
         {
             actualValues.push(selectedAction[i], i, cumReward);
             cumReward = (cumReward - allReward[i]) / gamma;
         }
-
         // Find error
         vecX<double> loss = msError.forward(states, actualValues);
         double totalLoss = 0;
@@ -76,7 +77,7 @@ struct PlayerNN
         l2.backward(grad);
         rl1.backward(grad);
         l1.backward(grad);
-
+        
         // Update weight
         l1.update();
         l2.update();
@@ -112,7 +113,7 @@ public:
         double randomNumber = distr(gen);
         if (randomNumber <= epsD)
         {
-            std::uniform_int_distribution<> uniformInt(0, 7);
+            std::uniform_int_distribution<> uniformInt(0, 8);
             return uniformInt(gen);
         }
         int index = 0;
@@ -141,6 +142,7 @@ public:
                 -> 5: top right
                 -> 6: bottom left
                 -> 7: bottom right
+                -> 8: No Change
         */
         state.TR();
         vecX<double> predictValue = player.PredictValueFunction(state);

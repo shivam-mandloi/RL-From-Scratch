@@ -40,10 +40,10 @@ public:
                 n = dim of input
                 m = batch size
          */
-        // vecX<double> prevGrad(savedActual.col, savedActual.row, 0);
         savedActual = MatScalarProd(savedActual, -1);
         savedInput = MatAdd(savedInput, savedActual);
-        savedInput = MatScalarProd(savedInput, 2/savedActual.row);
+        savedInput = MatScalarProd(savedInput, 2/(double)savedActual.row);
+        savedInput.TR();
         return savedInput;
     }
 

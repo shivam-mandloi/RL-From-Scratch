@@ -3,7 +3,8 @@
 
 int main()
 {
-    TAG tag;
+    int totalTime = 60, crnTime = 60;
+    TAG tag(totalTime);
     tag.window.setFramerateLimit(60);
     sf::Clock clock;
     float elapsedTime = 0.f;
@@ -20,26 +21,27 @@ int main()
         float deltaTime = clock.restart().asSeconds();
         elapsedTime += deltaTime;
 
-        if (elapsedTime >= 1.0f)
+        if (elapsedTime >= 0.5f)
         {
             elapsedTime = 0.f;
-            vecX<double> state = {tag.p1.position[0], tag.p1.position[1], tag.p1.velocity[0], tag.p1.velocity[1], tag.p2.position[0], tag.p2.position[1], tag.p2.velocity[0], tag.p2.velocity[1]};
+            vecX<double> state = {tag.p1.position[0], tag.p1.position[1], tag.p1.velocity[0], tag.p1.velocity[1], tag.p2.position[0], tag.p2.position[1], tag.p2.velocity[0], tag.p2.velocity[1], (double)crnTime};
             int redAction = playerRed.GetNextAction(state);
             int blueAction = playerBlue.GetNextAction(state);
+            crnTime-=1;
 
             float rewardRed = tag.PerFormAction(redAction, RED);
             float rewardBlue = tag.PerFormAction(blueAction, BLUE);
             if (tag.isCatch())
             {
                 rewardRed += 1000;
-                rewardBlue += (-1000);
+                rewardBlue -= 1000;
             }
             if (tag.isTimeLimit())
             {
-                rewardRed += (-1000);
+                rewardRed -= 1000;
                 rewardBlue += 1000;
             }
-            std::cout << "Red Action: " << redAction << " Red Reward: " << rewardRed << " Blue Action: " << blueAction << " Blue Reward: " << rewardBlue << std::endl;
+            std::cout << "Red Action: " << redAction << " | Red Reward: " << rewardRed << " | Blue Action: " << blueAction << " | Blue Reward: " << rewardBlue << std::endl;
             playerRed.SaveState(state, rewardRed, redAction);
             playerBlue.SaveState(state, rewardBlue, blueAction);
         }
@@ -55,12 +57,19 @@ int main()
 
         if (tag.isCatch() || tag.isTimeLimit())
         {
-            std::cout << "MC Caught" << std::endl;
-            std::cout << "Blue Total Reward: " << playerBlue.totalReward << " Red Total Reward: " << playerRed.totalReward << std::endl;
+            if(tag.isCatch())
+            {
+                vecX<double> state = {tag.p1.position[0], tag.p1.position[1], tag.p1.velocity[0], tag.p1.velocity[1], tag.p2.position[0], tag.p2.position[1], tag.p2.velocity[0], tag.p2.velocity[1], (double)crnTime};
+                playerRed.SaveState(state, 1000, 8);
+                playerBlue.SaveState(state, -1000, 8);
+                std::cout << "MC Caught" << std::endl;
+            }
+            std::cout << "Blue Total Reward: " << playerBlue.totalReward << " | Red Total Reward: " << playerRed.totalReward << std::endl;
             double lossBlue = playerBlue.Learn();
             double lossRed = playerRed.Learn();
-            std::cout << "Blue Player: " << lossBlue << " Red Player: " << lossRed << std::endl;
+            std::cout << "Blue Player: " << lossBlue << " | Red Player: " << lossRed << std::endl;
             tag.ResetPlayers();
+            crnTime = totalTime;
             // continue;
             // tag.window.close();
         }

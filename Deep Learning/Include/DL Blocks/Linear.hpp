@@ -46,7 +46,6 @@ public:
     {
         // update the weights
         opt.update(weight, weigthUpdate, bias, biasUpdate);
-
         // change update vector to zero
         ZeroGrad();
     }

@@ -161,3 +161,11 @@ vecX<double> ConvertVectorToVecX(std::vector<vecX<double>> &arr)
     }
     return res;
 }
+
+void SaveVecX(vecX<double> &vec)
+{
+}
+
+vecX<double> LoadVecX(std::string fileName)
+{
+}
