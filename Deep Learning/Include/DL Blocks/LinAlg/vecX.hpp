@@ -23,10 +23,11 @@ public:
     vecX(size_t _col, T defaultData) : vecX(1, _col, defaultData) {}
     vecX(size_t _col) : vecX(1, _col, T{}) {}
 
-    vecX(const vecX<T> &newArr) : row(newArr.row), col(newArr.col), len(newArr.len)
+    vecX(const vecX<T> &other) : row(other.row), col(other.col), len(other.len)
     {
+        isTransposed = other.isTransposed;
         arr = new T[len];
-        std::copy(newArr.arr, newArr.arr + newArr.len, arr);
+        std::copy(other.arr, other.arr + len, arr);
     }
 
     vecX(std::initializer_list<T> list) : row(1), col(list.size()), len(list.size())

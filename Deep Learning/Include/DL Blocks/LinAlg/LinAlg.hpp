@@ -145,3 +145,19 @@ vecX<double> CopyVector(vecX<double> vector, int n)
     }
     return mat;
 }
+
+vecX<double> ConvertVectorToVecX(std::vector<vecX<double>> &arr)
+{
+    // Create to use in Monte Carlo function approximation
+    // Assume atleast one entry in vector
+    // Assume arr[0] is vector
+    vecX<double> res(arr.size(), arr[0].len, 0);
+    for(int i = 0; i < arr.size(); i++)
+    {
+        for(int j = 0; j < arr[i].len; j++)
+        {
+            res.push(i, j, arr[i].Get(j));
+        }
+    }
+    return res;
+}

@@ -42,8 +42,8 @@ public:
          */
         // vecX<double> prevGrad(savedActual.col, savedActual.row, 0);
         savedActual = MatScalarProd(savedActual, -1);
-        vecX<double> savedInput = MatAdd(savedInput, savedActual);
-        MatScalarProd(savedInput, 2/savedActual.row);
+        savedInput = MatAdd(savedInput, savedActual);
+        savedInput = MatScalarProd(savedInput, 2/savedActual.row);
         return savedInput;
     }
 

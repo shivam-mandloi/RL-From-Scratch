@@ -28,7 +28,7 @@ enum PlayerType
 class Player
 {
     int borderX, borderY;
-    
+
 public:
     std::vector<float> position, velocity;
     sf::CircleShape shape;
@@ -50,10 +50,10 @@ public:
     {
         if ((position[0] < 0) || (position[0] + radius * 2 > borderX))
         {
-            position[0] = (position[0] < 0) ? radius : (float)borderX -  2 * radius;
+            position[0] = (position[0] < 0) ? radius : (float)borderX - 2 * radius;
             velocity[0] = -velocity[0];
         }
-        if ((position[1] < 0 ) || (position[1] + radius * 2 > borderY))        
+        if ((position[1] < 0) || (position[1] + radius * 2 > borderY))
         {
             position[1] = (position[1] < 0) ? radius : (float)borderY - 2 * radius;
             velocity[1] = -velocity[1];
@@ -75,15 +75,25 @@ class TAG
 public:
     sf::RenderWindow window;
     Player p1, p2;
+    int timeIter = 0, totalTime;
     // Fixed the size of window
-    TAG() : window(sf::VideoMode({800, 600}), "Pakad Pakad MC", sf::Style::Default, sf::State::Windowed), p1(0, 300, BLUE, 10, 800, 600), p2(700, 300, RED, 10, 800, 600){}
+    TAG(int _totalTime = 30) : window(sf::VideoMode({800, 600}), "Pakad Pakad MC", sf::Style::Default, sf::State::Windowed), p1(0, 300, BLUE, 10, 800, 600), p2(700, 300, RED, 10, 800, 600), totalTime(_totalTime) {}
+
+    void ResetPlayers()
+    {
+        p1.position = {0, 300};
+        p1.velocity = {0.f, 0.f};
+        p2.position = {700, 300};
+        p2.velocity = {0.f, 0.f};
+        timeIter = 0;
+    }
 
     void PlayerForce(float xDirection, float yDirection, PlayerType type)
     {
-        if(type == BLUE)
+        if (type == BLUE)
             p1.UpdateVelocity(xDirection, yDirection);
         else
-            p2.UpdateVelocity(xDirection, yDirection);        
+            p2.UpdateVelocity(xDirection, yDirection);
     }
 
     void Update()
@@ -93,11 +103,53 @@ public:
     }
 
     bool isCatch()
-    {        
+    {
         float dx = (p1.position[0] + p1.radius) - (p2.position[0] + p2.radius);
-        float dy = (p1.position[1] + p1.radius) - (p2.position[1] + p2.radius);    
+        float dy = (p1.position[1] + p1.radius) - (p2.position[1] + p2.radius);
         float distanceSq = dx * dx + dy * dy;
         float radiusSum = p1.radius + p2.radius;
         return distanceSq <= radiusSum * radiusSum;
+    }
+
+    bool isTimeLimit()
+    {
+        return timeIter >= totalTime ? true : false;
+    }
+
+    float PerFormAction(int action, PlayerType type)
+    {
+        /*
+        (Input)
+            ACtion (0 - 7)
+                -> 0: up
+                -> 1: down
+                -> 2: left
+                -> 3: right
+                -> 4: top left
+                -> 5: top right
+                -> 6: bottom left
+                -> 7: bottom right
+        (Return)
+            Reward: int
+        */
+        // PlayerForce(1, 1,type);
+        if (action == 0)
+            PlayerForce(0, 1, type);
+        if (action == 1)
+            PlayerForce(0, -1, type);
+        if (action == 2)
+            PlayerForce(-1, 0, type);
+        if (action == 3)
+            PlayerForce(1, 0, type);
+        if (action == 4)
+            PlayerForce(-1, 1, type);
+        if (action == 5)
+            PlayerForce(1, 1, type);
+        if (action == 6)
+            PlayerForce(-1, -1, type);
+        if (action == 7)
+            PlayerForce(1, -1, type);
+        timeIter += 1;
+        return type == RED ? -1 : 1;
     }
 };
