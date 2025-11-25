@@ -77,7 +77,7 @@ public:
     Player p1, p2;
     int timeIter = 0, totalTime;
     // Fixed the size of window
-    TAG(int _totalTime = 30) : window(sf::VideoMode({800, 600}), "Pakad Pakad MC", sf::Style::Default, sf::State::Windowed), p1(0, 300, BLUE, 10, 800, 600), p2(700, 300, RED, 10, 800, 600), totalTime(_totalTime) {}
+    TAG(int _totalTime = 30) : window(sf::VideoMode({800, 600}), "Pakad Pakad MC", sf::Style::Default, sf::State::Windowed), p1(0, 300, BLUE, 20, 800, 600), p2(700, 300, RED, 20, 800, 600), totalTime(_totalTime) {}
 
     void ResetPlayers()
     {
@@ -133,23 +133,24 @@ public:
             Reward: int
         */
         // PlayerForce(1, 1,type);
+        float speed = 0.5;
         if (action == 0)
-            PlayerForce(0, 1, type);
+            PlayerForce(0, speed, type);
         if (action == 1)
-            PlayerForce(0, -1, type);
+            PlayerForce(0, -speed, type);
         if (action == 2)
-            PlayerForce(-1, 0, type);
+            PlayerForce(-speed, 0, type);
         if (action == 3)
-            PlayerForce(1, 0, type);
+            PlayerForce(speed, 0, type);
         if (action == 4)
-            PlayerForce(-1, 1, type);
+            PlayerForce(-speed, speed, type);
         if (action == 5)
-            PlayerForce(1, 1, type);
+            PlayerForce(speed, speed, type);
         if (action == 6)
-            PlayerForce(-1, -1, type);
+            PlayerForce(-speed, -speed, type);
         if (action == 7)
-            PlayerForce(1, -1, type);
+            PlayerForce(speed, -speed, type);
         timeIter += 1;
-        return type == RED ? -1 : 1;
+        return type == RED ? -0.1 : 0.1;
     }
 };

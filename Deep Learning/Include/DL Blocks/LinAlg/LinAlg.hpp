@@ -169,3 +169,23 @@ void SaveVecX(vecX<double> &vec)
 vecX<double> LoadVecX(std::string fileName)
 {
 }
+
+std::vector<int> GetNShuffledPoint(int n)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    
+
+    std::vector<int> arr(n, 0);
+    for(int i = 0; i < arr.size(); i++)
+        arr[i] = i;
+    
+    for(int i = n - 1; i > -1; i--)
+    {
+        std::uniform_int_distribution<> uniformInt(0, i);
+        int j = uniformInt(gen);
+
+        std::swap(arr[i], arr[j]);
+    }
+    return arr;
+}

@@ -102,7 +102,7 @@ class DeepMonteCarlo
 
 public:
     float epsD, totalReward = 0.f, gamma;
-    DeepMonteCarlo(float _epsD = 0.3, float _gamma = 0.9) : epsD(_epsD), gamma(_gamma) {}
+    DeepMonteCarlo(float _epsD = 0.3, float _gamma = 0.99) : epsD(_epsD), gamma(_gamma) {}
 
     int SelectAction(vecX<double> &predictValue)
     {
