@@ -119,7 +119,7 @@ public:
         int index = 0;
         for (int i = 0; i < predictValue.len; i++)
         {
-            if (predictValue.Get(index) > predictValue.Get(i))
+            if (predictValue.Get(index) < predictValue.Get(i))
                 index = i;
         }
         return index;

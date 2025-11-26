@@ -122,7 +122,7 @@ vecX<double> CopyVector(vecX<double> vector, int n)
     if (vector.col != 1 && vector.row != 1)
     {
         std::cout << "CopyVector work only on a vector" << std::endl;
-        vector.print();
+        vector.size().print();
         std::exit(0);
     }
 

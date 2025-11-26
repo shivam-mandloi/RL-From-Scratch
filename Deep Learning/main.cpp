@@ -11,6 +11,8 @@ int main()
     sf::Clock clock;
     float elapsedTime = 0.f;
 
+    float terminalRward = 100; // used as positive reward, wither red get or blue
+
     // Tag Environment
     TAG tag(totalTime);
     tag.window.setFramerateLimit(60);
@@ -48,32 +50,23 @@ int main()
             if (tag.isCatch())
             {
                 std::cout << "catch" << std::endl;
-                rewardRed += 100;
-                rewardBlue -= 100;
+                rewardRed += terminalRward;
+                rewardBlue -= terminalRward;
             }
             if (tag.isTimeLimit())
             {
                 std::cout << "time limit" << std::endl;
-                rewardRed -= 100;
-                rewardBlue += 100;
+                rewardRed -= terminalRward;
+                rewardBlue += terminalRward;
             }
 
             std::cout << "Red Action: " << redAction << " | Red Reward: " << rewardRed << " | Blue Action: " << blueAction << " | Blue Reward: " << rewardBlue << std::endl;
             playerRed.SaveState(state, redAction, nextState, rewardRed, tag.isCatch() || tag.isTimeLimit());
             playerBlue.SaveState(state, blueAction, nextState, rewardBlue, tag.isCatch() || tag.isTimeLimit());
 
-            if (tag.isCatch() || tag.isTimeLimit())
-            {
-                std::cout << "Blue Total Reward: " << playerBlue.totalReward << " | Red Total Reward: " << playerRed.totalReward << std::endl;
-                double lossBlue = playerBlue.Learn();
-                double lossRed = playerRed.Learn();
-                std::cout << "Blue Player Learning Loss: " << lossBlue << " | Red Player Learning Loss: " << lossRed << std::endl;
-                tag.ResetPlayers();
-                crnTime = totalTime;
-                // continue;
-                // tag.window.close();
-            }
-            continue;
+            double lossBlue = playerBlue.Learn();
+            double lossRed = playerRed.Learn();
+            std::cout << "Blue Player Learning Loss: " << lossBlue << " | Red Player Learning Loss: " << lossRed << std::endl;
         }
 
         // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
@@ -86,6 +79,24 @@ int main()
         //     tag.PlayerForce(0.1, 0, BLUE);
 
        
+
+
+        if (tag.isCatch() || tag.isTimeLimit())
+        {
+            float rewardRed = -terminalRward;
+            if(tag.isCatch())
+                rewardRed = terminalRward;
+            vecX<double> state = {tag.p1.position[0], tag.p1.position[1], tag.p1.velocity[0], tag.p1.velocity[1], tag.p2.position[0], tag.p2.position[1], tag.p2.velocity[0], tag.p2.velocity[1], (double)crnTime};
+            playerRed.SaveState(state, 0, state, rewardRed, true); // next state is random
+            playerBlue.SaveState(state, 0, state, rewardRed * -1, true); // next state is random
+            std::cout << "Blue Total Reward: " << playerBlue.totalReward << " | Red Total Reward: " << playerRed.totalReward << std::endl;
+            double lossBlue = playerBlue.Learn();
+            double lossRed = playerRed.Learn();
+            std::cout << "Blue Player Learning Loss: " << lossBlue << " | Red Player Learning Loss: " << lossRed << std::endl;
+            playerBlue.totalReward = 0; playerRed.totalReward = 0;
+            tag.ResetPlayers();
+            crnTime = totalTime;
+        }
 
         tag.Update();
         tag.window.clear();

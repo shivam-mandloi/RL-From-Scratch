@@ -8,12 +8,26 @@
 
 #include <deque>
 
+int GetMaxAction(vecX<double> &predictValue)
+{
+    int index = 0;
+    for (int i = 0; i < predictValue.len; i++)
+    {
+        if (predictValue.Get(index) < predictValue.Get(i))
+            index = i;
+    }
+    return index;
+}
+
 struct ReplayBufferNode
 {
     vecX<double> state; // input to NN
-    float target; // target for perticular action
-    int action; // action which was selected    
-    ReplayBufferNode(vecX<double> _state, float _target, int _action) : state(_state), target(_target), action(_action){}
+    vecX<double> nextState;
+    float reward; // target for perticular action
+    int action; // action which was selected   
+    bool isTerminal; 
+    ReplayBufferNode(vecX<double> _state, vecX<double> _nextState, float _reward, int _action, bool _isTerminal) 
+    : state(_state), nextState(_nextState), reward(_reward), action(_action), isTerminal(_isTerminal){}
 };
 
 // 4 layer nwtwork
@@ -21,10 +35,11 @@ struct PlayerNN
 {
     std::deque<ReplayBufferNode *> replayBuffer;
     int qSize, batchSize;
+    float gamma;
     // Input will be
     // 1st player location, 1st player velocity, 2nd player location, 2nd player velocity
-    PlayerNN(int _qSize = 512, int _batchSize = 128)
-        : l1(9, 10), l2(10, 40), l3(40, 20), l4(20, 9), qSize(_qSize), batchSize(_batchSize)
+    PlayerNN(int _qSize = 512, int _batchSize = 128, float _gamma = 0.99)
+        : l1(9, 10), l2(10, 40), l3(40, 20), l4(20, 9), qSize(_qSize), batchSize(_batchSize), gamma(_gamma)
     {
         l1.opt.SetRMSprop(0.99, 5e-5);
         l2.opt.SetRMSprop(0.99, 5e-5);
@@ -70,20 +85,26 @@ struct PlayerNN
                 input.push(j, i, ele);
             }
         }
+        vecX<double> saveInput = input;
         input = PredictValueFunction(input);
 
         // Find Target
         vecX<double> target = input; // change only target for action we take
         for(int i = 0; i < input.col; i++) // for each input in batch
         {
-            target.push(replayBuffer[shuffledVec[i]]->action, i, replayBuffer[shuffledVec[i]]->target);
+            double expectedValue =  replayBuffer[shuffledVec[i]]->reward;
+            if(!replayBuffer[shuffledVec[i]]->isTerminal)
+            {
+                vecX<double> nextStateValue = PredictValueFunction(replayBuffer[shuffledVec[i]]->nextState);// Q(s') : s' -> next satate
+                expectedValue += gamma * nextStateValue.Get(GetMaxAction(nextStateValue)); // r + gamma * Q(s')
+            }
+            target.push(replayBuffer[shuffledVec[i]]->action, i, expectedValue);
         }
 
+        PredictValueFunction(saveInput);  // update the state in forward
         // Find error
         vecX<double> loss = msError.forward(input, target);
-        double totalLoss = 0;
-
-        loss.size().print();
+        double totalLoss = 0;        
 
         // Calculate the mean loss
         for(int i = 0; i < loss.len; i++)
@@ -109,11 +130,11 @@ struct PlayerNN
         return totalLoss;
     }
 
-    void AddInBuffer(vecX<double> &state, float target, int action)
+    void AddInBuffer(vecX<double> &state, vecX<double> &nextState, float reward, int action, bool isTerminal)
     {
         if(replayBuffer.size() >= qSize)
             replayBuffer.pop_front();
-        ReplayBufferNode *node = new ReplayBufferNode(state, target, action);
+        ReplayBufferNode *node = new ReplayBufferNode(state, nextState, reward, action, isTerminal);
         replayBuffer.push_back(node);
     }
 
@@ -131,16 +152,6 @@ public:
     float epsD, totalReward, gamma;
     DeepQLearning(float _epsD = 0.3, float _gamma = 0.99) : epsD(_epsD), totalReward(0), gamma(_gamma){}
 
-    int GetMaxAction(vecX<double> &predictValue)
-    {
-        int index = 0;
-        for (int i = 0; i < predictValue.len; i++)
-        {
-            if (predictValue.Get(index) > predictValue.Get(i))
-                index = i;
-        }
-        return index;
-    }
 
     int SelectAction(vecX<double> &predictValue)
     {
@@ -185,7 +196,6 @@ public:
     // Take input and actual
     double Learn()
     {
-        totalReward = 0;
         return player.Learn();
     }
 
@@ -197,12 +207,6 @@ public:
         */
         // update the replay buffer
         totalReward += reward;
-        if(!isTerminalState)
-        {
-            vecX<double> pred = player.PredictValueFunction(nextState);
-            int maxAction = GetMaxAction(pred);
-            reward += gamma * pred.Get(maxAction);
-        }
-        player.AddInBuffer(state, reward, action);
+        player.AddInBuffer(state, nextState, reward, action, isTerminalState);
     }
 };
