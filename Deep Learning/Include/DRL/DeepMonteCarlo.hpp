@@ -12,12 +12,14 @@ struct PlayerNN
     // Input will be
     // 1st player location, 1st player velocity, 2nd player location, 2nd player velocity
     PlayerNN()
-        : l1(9, 10), l2(10, 40), l3(40, 20), l4(20, 9)
+        : l1(9, 10), l2(10, 40), l3(40, 30), l4(30, 20), l5(20, 9)
     {
         l1.opt.SetRMSprop(0.99, 1e-4);
         l2.opt.SetRMSprop(0.99, 1e-4);
         l3.opt.SetRMSprop(0.99, 1e-4);
         l4.opt.SetRMSprop(0.99, 1e-4);
+        l5.opt.SetRMSprop(0.99, 1e-4);
+        // l6.opt.SetRMSprop(0.99, 1e-4);
 
         // l1.opt.SetSGD(1e-5);
         // l2.opt.SetSGD(1e-5);
@@ -35,6 +37,11 @@ struct PlayerNN
         l3.forward(state);
         rl3.forward(state);
         l4.forward(state);
+        rl4.forward(state);
+        l5.forward(state);
+        // rl5.forward(state);
+        // l6.forward(state);
+        
 
         return state;
     }
@@ -50,6 +57,8 @@ struct PlayerNN
         l2.ZeroGrad();
         l3.ZeroGrad();
         l4.ZeroGrad();
+        l5.ZeroGrad();
+        // l6.ZeroGrad();
 
         vecX<double> actualValues = states;
         for (int i = 0; i < states.col; i++)
@@ -70,6 +79,10 @@ struct PlayerNN
 
         // Backpropagate
         vecX<double> grad = msError.backward();
+        // l6.backward(grad);
+        // rl5.backward(grad);
+        l5.backward(grad);
+        rl4.backward(grad);
         l4.backward(grad);
         rl3.backward(grad);
         l3.backward(grad);
@@ -83,12 +96,14 @@ struct PlayerNN
         l2.update();
         l3.update();
         l4.update();
+        l5.update();
+        // l6.update();
         return totalLoss;
     }
 
 private:
-    Linear l1, l2, l3, l4;
-    Relu rl1, rl2, rl3;
+    Linear l1, l2, l3, l4, l5;
+    Relu rl1, rl2, rl3, rl4;
     MSE msError;
 };
 
