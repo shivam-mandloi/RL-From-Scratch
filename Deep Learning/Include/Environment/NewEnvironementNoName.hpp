@@ -54,33 +54,37 @@ public:
         player.setFillColor(sf::Color(colr[0],colr[1],colr[2]));
     }
 
-    void Update(float _x, float _y)
+    float Update(float _x, float _y)
     {        
         // update the velocity
+        float reward = 0;
         velocity[0] *= 1; velocity[1] *= 1;
         velocity[0] += _x; velocity[1] += _y;
         if ((position[0] < 0) || (position[0] + radius * 2 > borderX))
         {
             position[0] = (position[0] < 0) ? radius : (float)borderX - 2 * radius;
             velocity[0] = -velocity[0];
+            reward = -0.2;
         }
         if ((position[1] < 0) || (position[1] + radius * 2 > borderY))
         {
             position[1] = (position[1] < 0) ? radius : (float)borderY - 2 * radius;
             velocity[1] = -velocity[1];
+            reward = -0.2;
         }
         position[0] += velocity[0];
         position[1] += velocity[1];
         player.setPosition({position[0], position[1]});
+        return reward;
     }
 };
 
 class NewEnvironementNoName
 {
 int numberOfPlayer;
-std::vector<float> targetCireclePos;
 public:
     sf::RenderWindow window;
+    std::vector<float> targetCireclePos;
     sf::CircleShape targetCirecle;
     std::vector<Player> players;
     NewEnvironementNoName(int _numberOfPlayer) : numberOfPlayer(_numberOfPlayer), window(sf::VideoMode({800, 600}), "Pakad Pakad MC", sf::Style::Default, sf::State::Windowed)
@@ -98,7 +102,7 @@ public:
         }
 
         // Set target points
-        float posX = GiveRandomFloat(0, 800), posY = GiveRandomFloat(0, 600);
+        float posX = GiveRandomFloat(0, 800 - 40), posY = GiveRandomFloat(0, 600 - 40);
 
         targetCirecle.setRadius(20);
         targetCireclePos = {posX, posY};
@@ -135,32 +139,32 @@ public:
         (Return)
             Reward: float (1 / 0)
         */
-        float speed = 0.5;
+        float speed = 1, reward = 0;
         if (action == 0)
-            players[playerIndex].Update(0, speed);
+            reward = players[playerIndex].Update(0, speed);
         else if (action == 1)
-            players[playerIndex].Update(0, -speed);
+            reward = players[playerIndex].Update(0, -speed);
         else if (action == 2)
-            players[playerIndex].Update(-speed, 0);
+            reward = players[playerIndex].Update(-speed, 0);
         else if (action == 3)
-            players[playerIndex].Update(speed, 0);
+            reward = players[playerIndex].Update(speed, 0);
         else if (action == 4)
-            players[playerIndex].Update(-speed, speed);
+            reward = players[playerIndex].Update(-speed, speed);
         else if (action == 5)
-            players[playerIndex].Update(speed, speed);
+            reward = players[playerIndex].Update(speed, speed);
         else if (action == 6)
-            players[playerIndex].Update(-speed, -speed);
+            reward = players[playerIndex].Update(-speed, -speed);
         else if (action == 7)
-            players[playerIndex].Update(speed, -speed);
+            reward = players[playerIndex].Update(speed, -speed);
         else if (action == 8)
-            players[playerIndex].Update(0, 0);
+            reward = players[playerIndex].Update(0, 0);
         if(TakeTarget(playerIndex))
         {
-            float posX = GiveRandomFloat(0, 800), posY = GiveRandomFloat(0, 600);
+            float posX = GiveRandomFloat(0, 800-40), posY = GiveRandomFloat(0, 600-40);
             targetCireclePos = {posX, posY};
             targetCirecle.setPosition({targetCireclePos[0], targetCireclePos[1]});
-            return 1;
+            return reward + 1;
         }
-        return 0;
+        return reward;
     }
 };
